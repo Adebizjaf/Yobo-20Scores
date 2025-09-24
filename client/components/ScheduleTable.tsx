@@ -1,24 +1,8 @@
 import { useMemo, useState } from "react";
+import TeamLogo from "@/components/TeamLogo";
+import { fixtures } from "@/data/fixtures";
 
 type Sport = "Football" | "Basketball" | "Tennis" | "Cricket" | "Rugby";
-
-interface Fixture {
-  id: string;
-  sport: Sport;
-  home: string;
-  away: string;
-  date: string; // ISO or human readable
-  time: string; // local time string
-  league: string;
-}
-
-const fixtures: Fixture[] = [
-  { id: "f1", sport: "Football", home: "Lagos FC", away: "Abuja Stars", date: "Today", time: "18:00", league: "Premier League" },
-  { id: "f2", sport: "Basketball", home: "Kano Kings", away: "PH Clippers", date: "Today", time: "19:30", league: "NBP" },
-  { id: "f3", sport: "Tennis", home: "Okoye", away: "Adeyemi", date: "Tomorrow", time: "14:00", league: "ATP Abuja" },
-  { id: "f4", sport: "Cricket", home: "Enugu XI", away: "Ibadan XI", date: "Tomorrow", time: "11:00", league: "NCL" },
-  { id: "f5", sport: "Rugby", home: "Benin Bulls", away: "Jos Giants", date: "Sat", time: "16:00", league: "NRL" },
-];
 
 const filters: ("All" | Sport)[] = ["All", "Football", "Basketball", "Tennis", "Cricket", "Rugby"];
 
@@ -64,9 +48,13 @@ export default function ScheduleTable() {
               <tr key={f.id} className="hover:bg-muted/30">
                 <Td>{f.sport}</Td>
                 <Td>
-                  <span className="font-medium">{f.home}</span>
-                  <span className="mx-1 text-foreground/60">vs</span>
-                  <span className="font-medium">{f.away}</span>
+                  <div className="flex items-center gap-3">
+                    <TeamLogo name={f.home} />
+                    <span className="font-medium truncate">{f.home}</span>
+                    <span className="mx-1 text-foreground/60">vs</span>
+                    <span className="font-medium truncate">{f.away}</span>
+                    <TeamLogo name={f.away} />
+                  </div>
                 </Td>
                 <Td>{f.date}</Td>
                 <Td>{f.time}</Td>
