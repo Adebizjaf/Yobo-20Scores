@@ -11,6 +11,7 @@ export default function SiteHeader() {
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <a href="#search" className="transition-colors text-foreground/60 hover:text-foreground">Search</a>
           <NavItem to="/">Scores</NavItem>
           <NavItem to="/premium">Premium</NavItem>
         </nav>
