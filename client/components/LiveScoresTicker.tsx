@@ -64,10 +64,16 @@ export default function LiveScoresTicker() {
       >
         <span className="text-lg">{sportIcon(m.sport)}</span>
         <span className="text-xs font-semibold uppercase text-foreground/70">{m.sport}</span>
-        <span className="text-sm font-medium">
-          {m.home} <span className="font-bold text-blue-600">{m.homeScore}</span>
-          {" : "}
-          <span className="font-bold text-green-600">{m.awayScore}</span> {m.away}
+        <span className="flex items-center gap-2 text-sm font-medium">
+          <TeamLogo name={m.home} />
+          <span className="truncate">
+            {m.home} <span className="font-bold text-blue-600">{m.homeScore}</span>
+          </span>
+          <span className="text-foreground/60">:</span>
+          <span className="truncate">
+            <span className="font-bold text-green-600">{m.awayScore}</span> {m.away}
+          </span>
+          <TeamLogo name={m.away} />
         </span>
         <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600">
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />
