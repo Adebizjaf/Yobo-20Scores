@@ -6,14 +6,14 @@ import TeamSearch from "@/components/TeamSearch";
 
 export default function Index() {
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12">
       {/* Hero */}
-      <section className="grid gap-8 md:grid-cols-2 md:items-center">
+      <section className="grid gap-6 sm:gap-8 md:grid-cols-2 md:items-center">
         <div className="space-y-5">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
             Yobo Scores
           </h1>
-          <p className="max-w-prose text-lg text-foreground/70">
+          <p className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-none md:max-w-prose leading-relaxed">
             Live scores and schedules across your favorite sports. Stay ahead
             with instant updates, clean stats, and a premium ad-free experience.
           </p>
@@ -47,13 +47,13 @@ export default function Index() {
 
       {/* Team Search */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Search Teams</h2>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Search Teams</h2>
         <TeamSearch />
       </section>
 
       {/* Featured Fixtures */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Featured Fixtures</h2>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Featured Fixtures</h2>
         <FixturesGrid />
       </section>
 
@@ -61,7 +61,7 @@ export default function Index() {
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Today & Upcoming</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Today & Upcoming</h2>
             <p className="text-sm text-foreground/70">Schedules for football, basketball, tennis, cricket, and rugby.</p>
           </div>
           <a href="/premium" className="hidden md:inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted">
@@ -74,8 +74,8 @@ export default function Index() {
       {/* Premium highlight */}
       <section className="grid gap-8 rounded-2xl border bg-gradient-to-br from-blue-50/60 to-green-50/60 p-6 shadow-sm md:grid-cols-2 dark:from-blue-900/10 dark:to-green-900/10">
         <div className="space-y-3">
-          <h3 className="text-xl font-bold">Upgrade to Yobo Premium</h3>
-          <p className="text-foreground/70">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Upgrade to Yobo Premium</h3>
+          <p className="text-foreground/70 text-sm sm:text-base leading-relaxed">
             No ads. Dedicated TV screen for live matches. Faster updates. Experience sports like never before.
           </p>
           <div className="flex gap-3 pt-2">
