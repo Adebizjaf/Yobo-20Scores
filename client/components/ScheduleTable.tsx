@@ -32,8 +32,8 @@ export default function ScheduleTable() {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-xl border shadow-sm">
-        <table className="min-w-full divide-y divide-border">
+      <div className="overflow-x-auto rounded-xl border shadow-sm">
+        <table className="min-w-[720px] divide-y divide-border">
           <thead className="bg-muted/50">
             <tr>
               <Th>Sport</Th>
