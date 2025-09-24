@@ -8,8 +8,13 @@ type TVFrameProps = {
 };
 
 export default function TVFrame({ title, variant = "ad", className, children }: TVFrameProps) {
+  const wrapper = cn(
+    "w-full",
+    variant === "ad" ? "max-w-[240px] sm:max-w-[360px] md:max-w-full" : "max-w-full",
+    className,
+  );
   return (
-    <div className={cn("w-full", className)}>
+    <div className={wrapper}>
       {title ? (
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold tracking-wide text-foreground/80 uppercase">
@@ -28,8 +33,8 @@ export default function TVFrame({ title, variant = "ad", className, children }: 
         </div>
       ) : null}
       <div className="relative mx-auto aspect-video max-w-full rounded-[22px] bg-neutral-900 p-2 shadow-2xl">
-        <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/8 to-white/0 pointer-events-none" />
-        <div className="relative h-full w-full rounded-[16px] bg-black ring-1 ring-white/10 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/8 to-white/0" />
+        <div className="relative h-full w-full overflow-hidden rounded-[16px] bg-black ring-1 ring-white/10">
           {/* content area */}
           <div className="absolute inset-0 flex items-center justify-center text-white">
             {children ?? (
