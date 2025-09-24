@@ -43,6 +43,12 @@ export default function Index() {
         </TVFrame>
       </section>
 
+      {/* Featured Fixtures */}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight">Featured Fixtures</h2>
+        <FixturesGrid />
+      </section>
+
       {/* Schedule */}
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-3">
