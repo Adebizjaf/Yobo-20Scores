@@ -13,7 +13,7 @@ export default function Index() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
             Yobo Scores
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-none md:max-w-prose leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-foreground/70 leading-relaxed text-pretty hyphens-auto break-words sm:max-w-[50ch] md:max-w-[65ch]">
             Live scores and schedules across your favorite sports. Stay ahead
             with instant updates, clean stats, and a premium ad-free experience.
           </p>
