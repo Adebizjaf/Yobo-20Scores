@@ -2,6 +2,7 @@ import LiveScoresTicker from "@/components/LiveScoresTicker";
 import ScheduleTable from "@/components/ScheduleTable";
 import FixturesGrid from "@/components/FixturesGrid";
 import TVFrame from "@/components/TVFrame";
+import TeamSearch from "@/components/TeamSearch";
 
 export default function Index() {
   return (
