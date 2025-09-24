@@ -1,10 +1,22 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TeamLogo from "@/components/TeamLogo";
 import { teams, getAcronym } from "@/data/teams";
 
 export default function TeamSearch() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (typeof detail === "string") {
+        setQ(detail);
+        setSubmitted(true);
+      }
+    };
+    window.addEventListener("yobo:search", handler as EventListener);
+    return () => window.removeEventListener("yobo:search", handler as EventListener);
+  }, []);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
