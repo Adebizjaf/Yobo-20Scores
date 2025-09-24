@@ -44,6 +44,12 @@ export default function Index() {
         </TVFrame>
       </section>
 
+      {/* Team Search */}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight">Search Teams</h2>
+        <TeamSearch />
+      </section>
+
       {/* Featured Fixtures */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold tracking-tight">Featured Fixtures</h2>
