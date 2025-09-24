@@ -28,8 +28,5 @@ const extras = [
 ];
 
 export const teams: TeamInfo[] = Array.from(
-  new Set([
-    ...fixtures.flatMap((f) => [f.home, f.away]),
-    ...extras,
-  ]),
+  new Set([...fixtures.flatMap((f) => [f.home, f.away]), ...extras]),
 ).map((name) => ({ name, acronym: getAcronym(name) }));

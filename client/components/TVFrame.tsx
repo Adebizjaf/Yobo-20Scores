@@ -7,10 +7,17 @@ type TVFrameProps = {
   children?: React.ReactNode;
 };
 
-export default function TVFrame({ title, variant = "ad", className, children }: TVFrameProps) {
+export default function TVFrame({
+  title,
+  variant = "ad",
+  className,
+  children,
+}: TVFrameProps) {
   const wrapper = cn(
     "w-full",
-    variant === "ad" ? "max-w-[240px] sm:max-w-[360px] md:max-w-full" : "max-w-full",
+    variant === "ad"
+      ? "max-w-[240px] sm:max-w-[360px] md:max-w-full"
+      : "max-w-full",
     className,
   );
   return (
@@ -25,7 +32,7 @@ export default function TVFrame({ title, variant = "ad", className, children }: 
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
               variant === "ad"
                 ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
-                : "bg-green-100 text-green-700 border border-green-200"
+                : "bg-green-100 text-green-700 border border-green-200",
             )}
           >
             {variant === "ad" ? "Ad" : "Live"}
@@ -39,9 +46,24 @@ export default function TVFrame({ title, variant = "ad", className, children }: 
           <div className="absolute inset-0 flex items-center justify-center text-white">
             {children ?? (
               <div className="flex flex-col items-center gap-3">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" className="opacity-80">
-                  <path d="M3 5h18v12H3z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M8 19h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="opacity-80"
+                >
+                  <path
+                    d="M3 5h18v12H3z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M8 19h8"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 <p className="text-sm opacity-80">
                   {variant === "ad" ? "Sponsored" : "Live Match"}

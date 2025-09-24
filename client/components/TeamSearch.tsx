@@ -15,7 +15,8 @@ export default function TeamSearch() {
       }
     };
     window.addEventListener("yobo:search", handler as EventListener);
-    return () => window.removeEventListener("yobo:search", handler as EventListener);
+    return () =>
+      window.removeEventListener("yobo:search", handler as EventListener);
   }, []);
 
   const results = useMemo(() => {
@@ -54,10 +55,15 @@ export default function TeamSearch() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {results.length === 0 && submitted ? (
-          <p className="col-span-full text-sm text-foreground/70">No teams found. Try another name or acronym.</p>
+          <p className="col-span-full text-sm text-foreground/70">
+            No teams found. Try another name or acronym.
+          </p>
         ) : (
           results.map((t) => (
-            <div key={t.name} className="flex items-center justify-between rounded-xl border bg-background p-3 shadow-sm">
+            <div
+              key={t.name}
+              className="flex items-center justify-between rounded-xl border bg-background p-3 shadow-sm"
+            >
               <div className="flex min-w-0 items-center gap-3">
                 <TeamLogo name={t.name} size={32} />
                 <div className="min-w-0">

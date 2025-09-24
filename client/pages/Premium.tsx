@@ -7,7 +7,8 @@ export default function Premium() {
         <h1 className="text-3xl font-extrabold tracking-tight">Yobo Premium</h1>
         <p className="text-foreground/70">
           Enjoy every match ad-free with a dedicated live TV screen, real-time
-          scores, and priority updates. Perfect for superfans who want the best experience.
+          scores, and priority updates. Perfect for superfans who want the best
+          experience.
         </p>
         <ul className="list-inside list-disc text-foreground/80">
           <li>Ad-free browsing across Yobo Scores</li>
@@ -15,8 +16,18 @@ export default function Premium() {
           <li>Priority score refresh and alerts</li>
         </ul>
         <div className="flex gap-3 pt-2">
-          <a href="#" className="rounded-md bg-gradient-to-r from-blue-600 to-green-600 px-4 py-2 font-semibold text-white shadow hover:opacity-90">Subscribe Now</a>
-          <a href="/" className="rounded-md border px-4 py-2 font-medium hover:bg-muted">Go back</a>
+          <a
+            href="#"
+            className="rounded-md bg-gradient-to-r from-blue-600 to-green-600 px-4 py-2 font-semibold text-white shadow hover:opacity-90"
+          >
+            Subscribe Now
+          </a>
+          <a
+            href="/"
+            className="rounded-md border px-4 py-2 font-medium hover:bg-muted"
+          >
+            Go back
+          </a>
         </div>
       </div>
       <TVFrame title="Live Match" variant="live">

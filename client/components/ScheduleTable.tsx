@@ -4,13 +4,22 @@ import { fixtures } from "@/data/fixtures";
 
 type Sport = "Football" | "Basketball" | "Tennis" | "Cricket" | "Rugby";
 
-const filters: ("All" | Sport)[] = ["All", "Football", "Basketball", "Tennis", "Cricket", "Rugby"];
+const filters: ("All" | Sport)[] = [
+  "All",
+  "Football",
+  "Basketball",
+  "Tennis",
+  "Cricket",
+  "Rugby",
+];
 
 export default function ScheduleTable() {
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
 
   const data = useMemo(() => {
-    return fixtures.filter((f) => (filter === "All" ? true : f.sport === filter));
+    return fixtures.filter((f) =>
+      filter === "All" ? true : f.sport === filter,
+    );
   }, [filter]);
 
   return (
@@ -35,9 +44,14 @@ export default function ScheduleTable() {
       {/* Mobile/Tablet cards */}
       <div className="grid gap-3 md:hidden">
         {data.map((f) => (
-          <div key={f.id} className="rounded-xl border bg-background p-3 shadow-sm">
+          <div
+            key={f.id}
+            className="rounded-xl border bg-background p-3 shadow-sm"
+          >
             <div className="flex items-center justify-between text-xs text-foreground/60">
-              <span className="font-semibold uppercase tracking-wide">{f.sport}</span>
+              <span className="font-semibold uppercase tracking-wide">
+                {f.sport}
+              </span>
               <span>
                 {f.date} • {f.time}
               </span>
@@ -47,7 +61,9 @@ export default function ScheduleTable() {
                 <TeamLogo name={f.home} />
                 <span className="truncate text-sm font-medium">{f.home}</span>
               </div>
-              <span className="px-2 text-sm font-semibold text-foreground/70">vs</span>
+              <span className="px-2 text-sm font-semibold text-foreground/70">
+                vs
+              </span>
               <div className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-medium">{f.away}</span>
                 <TeamLogo name={f.away} />

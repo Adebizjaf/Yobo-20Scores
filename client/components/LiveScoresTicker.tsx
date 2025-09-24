@@ -12,11 +12,51 @@ interface LiveMatch {
 }
 
 const initial: LiveMatch[] = [
-  { id: "1", sport: "Football", home: "Lagos FC", away: "Accra United", homeScore: 1, awayScore: 0, minute: 36 },
-  { id: "2", sport: "Basketball", home: "Abuja Heat", away: "Kano Kings", homeScore: 52, awayScore: 49, minute: 3 },
-  { id: "3", sport: "Tennis", home: "Okoye", away: "Bakare", homeScore: 1, awayScore: 1, minute: 2 },
-  { id: "4", sport: "Cricket", home: "Ibadan XI", away: "Enugu XI", homeScore: 120, awayScore: 4, minute: 28 },
-  { id: "5", sport: "Rugby", home: "PH Sharks", away: "Benin Bulls", homeScore: 7, awayScore: 6, minute: 41 },
+  {
+    id: "1",
+    sport: "Football",
+    home: "Lagos FC",
+    away: "Accra United",
+    homeScore: 1,
+    awayScore: 0,
+    minute: 36,
+  },
+  {
+    id: "2",
+    sport: "Basketball",
+    home: "Abuja Heat",
+    away: "Kano Kings",
+    homeScore: 52,
+    awayScore: 49,
+    minute: 3,
+  },
+  {
+    id: "3",
+    sport: "Tennis",
+    home: "Okoye",
+    away: "Bakare",
+    homeScore: 1,
+    awayScore: 1,
+    minute: 2,
+  },
+  {
+    id: "4",
+    sport: "Cricket",
+    home: "Ibadan XI",
+    away: "Enugu XI",
+    homeScore: 120,
+    awayScore: 4,
+    minute: 28,
+  },
+  {
+    id: "5",
+    sport: "Rugby",
+    home: "PH Sharks",
+    away: "Benin Bulls",
+    homeScore: 7,
+    awayScore: 6,
+    minute: 41,
+  },
 ];
 
 function sportIcon(sport: LiveMatch["sport"]) {
@@ -51,7 +91,7 @@ export default function LiveScoresTicker() {
             };
           }
           return { ...m, minute: m.minute + 1 };
-        })
+        }),
       );
     }, 3000);
     return () => clearInterval(t);
@@ -64,15 +104,19 @@ export default function LiveScoresTicker() {
         className="flex items-center gap-3 rounded-full border bg-background px-4 py-2 shadow-sm"
       >
         <span className="text-lg">{sportIcon(m.sport)}</span>
-        <span className="text-xs font-semibold uppercase text-foreground/70">{m.sport}</span>
+        <span className="text-xs font-semibold uppercase text-foreground/70">
+          {m.sport}
+        </span>
         <span className="flex items-center gap-2 text-sm font-medium">
           <TeamLogo name={m.home} />
           <span className="truncate">
-            {m.home} <span className="font-bold text-blue-600">{m.homeScore}</span>
+            {m.home}{" "}
+            <span className="font-bold text-blue-600">{m.homeScore}</span>
           </span>
           <span className="text-foreground/60">:</span>
           <span className="truncate">
-            <span className="font-bold text-green-600">{m.awayScore}</span> {m.away}
+            <span className="font-bold text-green-600">{m.awayScore}</span>{" "}
+            {m.away}
           </span>
           <TeamLogo name={m.away} />
         </span>
