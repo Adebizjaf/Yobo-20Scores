@@ -32,8 +32,35 @@ export default function ScheduleTable() {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border shadow-sm">
-        <table className="min-w-[720px] divide-y divide-border">
+      {/* Mobile/Tablet cards */}
+      <div className="grid gap-3 md:hidden">
+        {data.map((f) => (
+          <div key={f.id} className="rounded-xl border bg-background p-3 shadow-sm">
+            <div className="flex items-center justify-between text-xs text-foreground/60">
+              <span className="font-semibold uppercase tracking-wide">{f.sport}</span>
+              <span>
+                {f.date} • {f.time}
+              </span>
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <TeamLogo name={f.home} />
+                <span className="truncate text-sm font-medium">{f.home}</span>
+              </div>
+              <span className="px-2 text-sm font-semibold text-foreground/70">vs</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-medium">{f.away}</span>
+                <TeamLogo name={f.away} />
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-foreground/60">{f.league}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-xl border shadow-sm md:block">
+        <table className="min-w-full divide-y divide-border">
           <thead className="bg-muted/50">
             <tr>
               <Th>Sport</Th>
