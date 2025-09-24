@@ -11,17 +11,32 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
+import Premium from "@/pages/Premium";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background">
+          <SiteHeader />
+          <main className="container flex-1 py-8">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/premium" element={<Premium />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <SiteFooter />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
