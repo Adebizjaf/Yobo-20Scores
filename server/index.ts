@@ -22,7 +22,7 @@ export function createServer() {
 
   // API-SPORTS integration
   app.get("/api/apisports/status", handleApiSportsStatus);
-  app.get("/api/apisports/*", proxyApiSports);
+  app.use("/api/apisports", proxyApiSports);
 
   return app;
 }
