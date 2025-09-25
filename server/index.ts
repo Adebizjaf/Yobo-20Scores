@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { handleApiSportsStatus, proxyApiSports } from "./routes/apisports";
 
 export function createServer() {
   const app = express();
@@ -18,6 +19,10 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // API-SPORTS integration
+  app.get("/api/apisports/status", handleApiSportsStatus);
+  app.get("/api/apisports/*", proxyApiSports);
 
   return app;
 }
