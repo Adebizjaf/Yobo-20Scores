@@ -10,3 +10,12 @@
 export interface DemoResponse {
   message: string;
 }
+
+/**
+ * Status response for API-SPORTS integration
+ */
+export interface ApiSportsStatusResponse {
+  ok: boolean;
+  baseUrl: string;
+  keyPresent: boolean;
+}
