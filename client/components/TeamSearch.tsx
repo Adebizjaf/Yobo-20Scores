@@ -3,7 +3,8 @@ import TeamLogo from "@/components/TeamLogo";
 import { teams, getAcronym, type TeamInfo } from "@/data/teams";
 import { useLiveScores } from "@/lib/live-scores";
 
-const popularTeams = ["Lagos FC", "Kano Kings", "Abuja Stars", "PH Clippers", "Abuja Heat", "PH Sharks", "Accra United"];
+const popularTeams = ["Real Madrid", "Manchester United", "Los Angeles Lakers", "New York Yankees", "Kansas City Chiefs"];
+const popularTeamRecords: TeamInfo[] = popularTeams.map((name) => ({ name, acronym: getAcronym(name) }));
 
 export default function TeamSearch() {
   const [q, setQ] = useState("");
@@ -14,7 +15,7 @@ export default function TeamSearch() {
       { name: match.home.name, acronym: getAcronym(match.home.name), logo: match.home.logo },
       ...(match.away ? [{ name: match.away.name, acronym: getAcronym(match.away.name), logo: match.away.logo }] : []),
     ]);
-    return Array.from(new Map([...teams, ...liveTeams].map((team) => [team.name.toLowerCase(), team])).values());
+    return Array.from(new Map([...popularTeamRecords, ...teams, ...liveTeams].map((team) => [team.name.toLowerCase(), team])).values());
   }, [data]);
 
   useEffect(() => {
