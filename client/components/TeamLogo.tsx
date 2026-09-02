@@ -34,7 +34,7 @@ export default function TeamLogo({
   return (
     <div
       className={cn(
-        "grid place-items-center text-white shadow-inner ring-1 ring-black/10",
+        "relative grid place-items-center overflow-hidden text-white shadow-inner ring-1 ring-black/10",
         squared ? "rounded-md" : "rounded-full",
         className,
       )}
@@ -42,7 +42,8 @@ export default function TeamLogo({
       aria-label={`${name} logo`}
       title={name}
     >
-      {logo ? <img src={logo} alt="" className="h-full w-full object-contain p-1" loading="lazy" /> : <span className="text-[10px] font-extrabold tracking-wide drop-shadow-sm">{initials}</span>}
+      <span className="text-[10px] font-extrabold tracking-wide drop-shadow-sm">{initials}</span>
+      {logo && <img src={logo} alt={`${name} logo`} className="absolute inset-0 h-full w-full bg-white object-contain p-1" loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
     </div>
   );
 }
