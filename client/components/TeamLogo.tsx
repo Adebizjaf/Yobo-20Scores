@@ -31,6 +31,8 @@ export default function TeamLogo({
     height: size,
     background: `conic-gradient(from 180deg at 50% 50%, hsl(${hue} 80% 55%), hsl(${(hue + 60) % 360} 70% 45%))`,
   };
+  const fallbackLogo = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="hsl(${hue} 80% 55%)"/><stop offset="1" stop-color="hsl(${(hue + 60) % 360} 70% 45%)"/></linearGradient></defs><path fill="url(#g)" d="M32 3 55 12v18c0 15-9 25-23 31C18 55 9 45 9 30V12z"/><text x="32" y="38" fill="white" font-size="16" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle">${initials}</text></svg>`)}`;
+  const resolvedLogo = logo || fallbackLogo;
   return (
     <div
       className={cn(
@@ -43,7 +45,7 @@ export default function TeamLogo({
       title={name}
     >
       <span className="text-[10px] font-extrabold tracking-wide drop-shadow-sm">{initials}</span>
-      {logo && <img src={logo} alt={`${name} logo`} className="absolute inset-0 h-full w-full bg-white object-contain p-1" loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
+      <img src={resolvedLogo} alt={`${name} logo`} className="absolute inset-0 h-full w-full bg-white object-contain p-1" loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} />
     </div>
   );
 }
