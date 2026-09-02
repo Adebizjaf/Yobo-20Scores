@@ -22,6 +22,7 @@ export default function LiveScoresPanel() {
   const [status, setStatus] = useState<ScoreFilter>("all");
   const { data, error, isLoading, isFetching, refetch } = useLiveScores(sport, status);
   const leagues = useMemo(() => [...new Set(data?.matches.map((match) => match.league) ?? [])], [data]);
+  const leagueOptions = useMemo(() => [...new Set(["English Premier League", ...leagues])], [leagues]);
   const [league, setLeague] = useState("all");
   const [tableLeagueId, setTableLeagueId] = useState<string>();
   const selectedLeague = data?.matches.find((match) => match.league === league);
@@ -46,7 +47,7 @@ export default function LiveScoresPanel() {
       </div>
       <div className="flex flex-wrap gap-2" aria-label="Filter by game state">
         {(Object.keys(statusLabels) as ScoreFilter[]).map((item) => <FilterButton key={item} active={status === item} onClick={() => setStatus(item)}>{statusLabels[item]}</FilterButton>)}
-        {leagues.map((item) => <FilterButton key={item} active={league === item} onClick={() => { setLeague(item); setTableLeagueId(data?.matches.find((match) => match.league === item)?.leagueId); }}>{item}</FilterButton>)}
+        {leagueOptions.map((item) => <FilterButton key={item} active={league === item} onClick={() => { setLeague(item); setTableLeagueId(data?.matches.find((match) => match.league === item)?.leagueId); }}>{item}</FilterButton>)}
         {league !== "all" && <button onClick={() => setTableLeagueId(selectedLeague?.leagueId)} disabled={!selectedLeague?.leagueId || tableQuery.isFetching} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"><CalendarClock className="h-3.5 w-3.5" />{tableQuery.isFetching ? "Loading table" : "View league table"}</button>}
       </div>
     </div>
