@@ -28,11 +28,12 @@ function formatProviderTime(value: string) {
 export default function ScheduleTable() {
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const { data: liveData } = useLiveScores("soccer", "all");
-  const logoQueries = usePopularTeamLogos([...new Set(marchFixtures.flatMap((fixture) => [fixture.home, fixture.away]))]);
+  const soccerNames = [...new Set(marchFixtures.filter((fixture) => fixture.sport === "Soccer").flatMap((fixture) => [fixture.home, fixture.away]))];
+  const logoQueries = usePopularTeamLogos(soccerNames);
   const logos = new Map(logoQueries.flatMap((query) => query.data?.teams ?? []).map((team) => [team.name.toLowerCase(), team.logo]));
   const schedule = useMemo<ScheduleFixture[]>(() => {
     const providerSoccer = (liveData?.matches ?? []).slice(0, 1).map((match) => ({ id: match.id, sport: "Soccer" as const, home: match.home.name, away: match.away?.name ?? "TBD", date: formatProviderDate(match.startTime), time: formatProviderTime(match.startTime), league: match.league, homeLogo: match.home.logo ?? logos.get(match.home.name.toLowerCase()), awayLogo: match.away?.logo ?? logos.get((match.away?.name ?? "TBD").toLowerCase()) }));
-    const datedFixtures = marchFixtures.map((fixture) => ({ ...fixture, homeLogo: fixture.homeLogo ?? logos.get(fixture.home.toLowerCase()), awayLogo: fixture.awayLogo ?? logos.get(fixture.away.toLowerCase()) }));
+    const datedFixtures = marchFixtures.map((fixture) => ({ ...fixture, homeLogo: fixture.homeLogo ?? (fixture.sport === "Soccer" ? logos.get(fixture.home.toLowerCase()) : undefined), awayLogo: fixture.awayLogo ?? (fixture.sport === "Soccer" ? logos.get(fixture.away.toLowerCase()) : undefined) }));
     return providerSoccer.length ? [...providerSoccer, ...datedFixtures.filter((fixture) => fixture.sport !== "Soccer" || fixture.league === "English Premier League")] : datedFixtures;
   }, [liveData, logoQueries]);
   const data = useMemo(() => schedule.filter((fixture) => filter === "All" || fixture.sport === filter), [filter, schedule]);

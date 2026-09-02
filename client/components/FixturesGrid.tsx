@@ -10,7 +10,8 @@ const featuredFixtures = [
 ];
 
 export default function FixturesGrid() {
-  const logoQueries = usePopularTeamLogos([...new Set(featuredFixtures.flatMap((fixture) => [fixture.home, fixture.away]))]);
+  const soccerNames = [...new Set(featuredFixtures.filter((fixture) => fixture.sport === "Soccer").flatMap((fixture) => [fixture.home, fixture.away]))];
+  const logoQueries = usePopularTeamLogos(soccerNames);
   const logos = new Map(logoQueries.flatMap((query) => query.data?.teams ?? []).map((team) => [team.name.toLowerCase(), team.logo]));
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,9 +23,9 @@ export default function FixturesGrid() {
           </div>
           <div className="mt-2 text-xs font-medium capitalize text-blue-600">{fixture.sport}</div>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <Team name={fixture.home} logo={logos.get(fixture.home.toLowerCase())} />
+            <Team name={fixture.home} logo={fixture.sport === "Soccer" ? logos.get(fixture.home.toLowerCase()) : undefined} />
             <span className="px-2 text-sm font-semibold text-foreground/70">vs</span>
-            <Team name={fixture.away} logo={logos.get(fixture.away.toLowerCase())} align="right" />
+            <Team name={fixture.away} logo={fixture.sport === "Soccer" ? logos.get(fixture.away.toLowerCase()) : undefined} align="right" />
           </div>
           <a href="/premium" className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-gradient-to-r from-blue-600 to-green-600 px-3 py-2 text-sm font-semibold text-white hover:opacity-90">Watch on Premium</a>
         </div>

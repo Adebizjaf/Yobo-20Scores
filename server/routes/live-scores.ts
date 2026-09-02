@@ -7,6 +7,7 @@ const HIGHLIGHTLY_DOMAIN = "https://sports.highlightly.net";
 const FOOTBALL_DOMAIN = (process.env.APISPORTS_DOMAIN ?? "https://api-football.com").replace(/\/$/, "");
 const configuredBases = parseBases(process.env.APISPORTS_SPORT_BASES);
 const cache = new Map<string, { value: LiveScore[]; expiresAt: number }>();
+const teamLogoCache = new Map<string, { teams: Array<{ name: string; logo?: string }>; expiresAt: number }>();
 
 function parseBases(value?: string): Partial<Record<Sport, string>> {
   if (!value) return {};
@@ -147,6 +148,9 @@ export const handleTeamSearch: RequestHandler = async (req, res) => {
   if (!HIGHLIGHTLY_KEY) return res.status(503).json({ teams: [] });
   const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
   if (name.length < 2) return res.json({ teams: [] });
+  const cacheKey = name.toLowerCase();
+  const cached = teamLogoCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return res.json({ teams: cached.teams });
   const url = new URL("football/teams", `${HIGHLIGHTLY_DOMAIN}/`);
   url.searchParams.set("name", name);
   url.searchParams.set("limit", "5");
@@ -154,7 +158,9 @@ export const handleTeamSearch: RequestHandler = async (req, res) => {
     const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
     if (!response.ok) throw new Error(`Highlightly teams returned ${response.status}`);
     const body = (await response.json()) as { data?: Array<{ name?: string; logo?: string }> };
-    res.json({ teams: (body.data ?? []).filter((team) => team.name).map((team) => ({ name: team.name, logo: team.logo })) });
+    const teams = (body.data ?? []).filter((team) => team.name).map((team) => ({ name: team.name!, logo: team.logo }));
+    teamLogoCache.set(cacheKey, { teams, expiresAt: Date.now() + 86_400_000 });
+    res.json({ teams });
   } catch {
     res.status(502).json({ error: "Team search is temporarily unavailable." });
   }

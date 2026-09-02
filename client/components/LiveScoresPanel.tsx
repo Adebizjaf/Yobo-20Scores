@@ -37,7 +37,7 @@ export default function LiveScoresPanel() {
         <p className="mt-2 text-sm text-muted-foreground">Updates automatically while this page is open. Live results refresh every 15 seconds.</p>
       </div>
       <div className="flex flex-wrap gap-2 sm:shrink-0">
-        <Button variant="outline" size="sm" onClick={() => { const firstLeague = data?.matches.find((match) => match.leagueId); setLeague(firstLeague?.league ?? "English Premier League"); setTableLeagueId(firstLeague?.leagueId); }}><CalendarClock />League tables</Button>
+        <Button variant="outline" size="sm" onClick={() => { const firstLeague = data?.matches.find((match) => match.leagueId); setSport("soccer"); setLeague(firstLeague?.league ?? "English Premier League"); setTableLeagueId(firstLeague?.leagueId ?? "33973"); }}><CalendarClock />League tables</Button>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
       </div>
     </div>
