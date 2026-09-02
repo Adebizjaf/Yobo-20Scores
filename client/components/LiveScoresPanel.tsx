@@ -43,7 +43,6 @@ export default function LiveScoresPanel() {
       </div></div>
     </div>
 
-    {data?.cached && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100"><strong>Demo mode:</strong> live provider access is unavailable, so these sample scores are shown until live events can be loaded.</div>}
     <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm backdrop-blur sm:p-5">
       <div><p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Sport</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" aria-label="Filter by sport">
         <FilterButton className="w-full justify-center" active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}><span aria-hidden="true">🏆</span>All sports</FilterButton>
