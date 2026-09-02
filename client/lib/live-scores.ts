@@ -19,10 +19,11 @@ function fallbackScores(sport: Sport | "all", status: ScoreFilter): LiveScoresRe
 async function getLiveScores(sport: Sport | "all", status: ScoreFilter): Promise<LiveScoresResponse> {
   const params = new URLSearchParams({ sport, status });
   const response = await fetch(`/api/live-scores?${params}`);
-  if (response.status === 503) return fallbackScores(sport, status);
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(body?.error ?? "Live scores are temporarily unavailable.");
+    const providerError = body?.error ?? "";
+    if (response.status === 503 || (response.status === 502 && /upstream returned (401|403|429)/.test(providerError))) return fallbackScores(sport, status);
+    throw new Error(providerError || "Live scores are temporarily unavailable.");
   }
   return response.json() as Promise<LiveScoresResponse>;
 }
