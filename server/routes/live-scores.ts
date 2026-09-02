@@ -2,6 +2,8 @@ import type { RequestHandler } from "express";
 import { sports, type LiveScore, type ScoreStatus, type Sport } from "../../shared/live-scores";
 
 const API_KEY = process.env.APISPORTS_API_KEY ?? "";
+const HIGHLIGHTLY_KEY = process.env.HIGHLIGHTLY_API_KEY ?? "";
+const HIGHLIGHTLY_DOMAIN = "https://sports.highlightly.net";
 const FOOTBALL_DOMAIN = (process.env.APISPORTS_DOMAIN ?? "https://api-football.com").replace(/\/$/, "");
 const configuredBases = parseBases(process.env.APISPORTS_SPORT_BASES);
 const cache = new Map<string, { value: LiveScore[]; expiresAt: number }>();
@@ -27,13 +29,13 @@ function baseFor(sport: Sport) {
 }
 
 function isLive(value: unknown) {
-  const status = String(value ?? "").toLowerCase();
-  return ["live", "in play", "in progress", "1h", "2h", "ht", "q1", "q2", "q3", "q4", "ot", "set 1", "set 2", "set 3"].some((live) => status.includes(live));
+  const status = String(value ?? "").trim().toLowerCase();
+  return ["live", "in play", "in progress", "1h", "2h", "ht", "halftime", "q1", "q2", "q3", "q4", "ot", "set 1", "set 2", "set 3"].includes(status) || /^(first|second|third|fourth) half$/.test(status);
 }
 
 function isCompleted(value: unknown) {
   const status = String(value ?? "").toLowerCase();
-  return ["finished", "completed", "final", "ft", "aet", "pen"].some((completed) => status.includes(completed));
+  return ["finished", "completed", "final", "ended", "ft", "aet", "pen"].some((completed) => status.includes(completed));
 }
 
 function valueAt(source: Record<string, unknown>, ...keys: string[]) {
@@ -77,7 +79,49 @@ function normalizeGame(sport: Sport, raw: unknown): LiveScore | null {
   };
 }
 
+function normalizeHighlightly(raw: unknown): LiveScore | null {
+  if (!raw || typeof raw !== "object") return null;
+  const item = raw as Record<string, unknown>;
+  const state = (item.state ?? {}) as Record<string, unknown>;
+  const score = (state.score ?? {}) as Record<string, unknown>;
+  const home = (item.homeTeam ?? {}) as Record<string, unknown>;
+  const away = (item.awayTeam ?? {}) as Record<string, unknown>;
+  const country = (item.country ?? {}) as Record<string, unknown>;
+  const league = (item.league ?? {}) as Record<string, unknown>;
+  const statusLabel = String(state.description ?? "Scheduled");
+  const currentScore = String(score.current ?? "");
+  const [homeScore, awayScore] = currentScore.split(/\s*[-:]\s*/).map((value) => value || undefined);
+  return {
+    id: `soccer:${String(item.id ?? `${home.name}-${away.name}-${item.date}`)}`,
+    sport: "soccer",
+    league: String(league.name ?? country.name ?? "Football"),
+    venue: String(((item.venue ?? {}) as Record<string, unknown>).name ?? "") || undefined,
+    startTime: String(item.date ?? new Date().toISOString()),
+    status: isLive(statusLabel) ? "live" : isCompleted(statusLabel) ? "completed" : "upcoming",
+    statusLabel,
+    clock: String(state.clock ?? "") || undefined,
+    home: { name: String(home.name ?? "TBD"), score: homeScore },
+    away: { name: String(away.name ?? "TBD"), score: awayScore },
+  };
+}
+
+async function fetchHighlightly(status: ScoreStatus | "all") {
+  const cacheKey = `highlightly:${status}`;
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  const url = new URL("football/matches", `${HIGHLIGHTLY_DOMAIN}/`);
+  url.searchParams.set("date", new Date().toISOString().slice(0, 10));
+  const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
+  if (!response.ok) throw new Error(`Highlightly upstream returned ${response.status}`);
+  const body = (await response.json()) as { data?: unknown[] };
+  const matches = (body.data ?? []).map(normalizeHighlightly).filter((match): match is LiveScore => Boolean(match));
+  const filtered = status === "all" ? matches : matches.filter((match) => match.status === status);
+  cache.set(cacheKey, { value: filtered, expiresAt: Date.now() + (status === "live" ? 15_000 : 120_000) });
+  return filtered;
+}
+
 async function fetchSport(sport: Sport, status: ScoreStatus | "all") {
+  if (sport === "soccer" && HIGHLIGHTLY_KEY) return fetchHighlightly(status);
   const base = baseFor(sport);
   if (!base) return [];
   const cacheKey = `${sport}:${status}`;
@@ -98,7 +142,7 @@ async function fetchSport(sport: Sport, status: ScoreStatus | "all") {
 }
 
 export const handleLiveScores: RequestHandler = async (req, res) => {
-  if (!API_KEY) return res.status(503).json({ error: "Live scores are not configured yet." });
+  if (!API_KEY && !HIGHLIGHTLY_KEY) return res.status(503).json({ error: "Live scores are not configured yet." });
   const requestedSport = typeof req.query.sport === "string" ? req.query.sport : "soccer";
   const requestedStatus = typeof req.query.status === "string" ? req.query.status : "all";
   const league = typeof req.query.league === "string" ? req.query.league : undefined;
