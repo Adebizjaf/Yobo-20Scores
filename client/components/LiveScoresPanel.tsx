@@ -29,8 +29,8 @@ export default function LiveScoresPanel() {
   const tableQuery = useLeagueTable(tableLeagueId);
   const matches = useMemo(() => data?.matches.filter((match) => league === "all" || match.league === league) ?? [], [data, league]);
 
-  return <section className="space-y-5" aria-labelledby="live-scores-title">
-    <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-end sm:justify-between">
+  return <section className="space-y-5 sm:space-y-6" aria-labelledby="live-scores-title">
+    <div className="rounded-2xl border bg-gradient-to-br from-blue-50/70 via-background to-green-50/70 p-5 shadow-sm dark:from-blue-950/30 dark:via-background dark:to-green-950/20 sm:p-6"><div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <div className="flex items-center gap-2 text-sm font-semibold text-red-600"><Radio className="h-4 w-4" />Live score centre</div>
         <h1 id="live-scores-title" className="mt-1 text-2xl font-extrabold tracking-tight sm:text-4xl">Scores that stay current</h1>
@@ -39,27 +39,27 @@ export default function LiveScoresPanel() {
       <div className="flex flex-wrap gap-2 sm:shrink-0">
         <Button variant="outline" size="sm" onClick={() => { const firstLeague = data?.matches.find((match) => match.leagueId); setSport("soccer"); setLeague(firstLeague?.league ?? "English Premier League"); setTableLeagueId(firstLeague?.leagueId ?? "33973"); }}><CalendarClock />League tables</Button>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
-      </div>
+      </div></div>
     </div>
 
     {data?.cached && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100"><strong>Demo mode:</strong> live provider access is unavailable, so these sample scores are shown until live events can be loaded.</div>}
-    <div className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
-      <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by sport">
+    <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm backdrop-blur sm:p-5">
+      <div><p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Sport</p><div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by sport">
         <FilterButton active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}>All sports</FilterButton>
         {sports.map((item) => <FilterButton key={item} active={sport === item} onClick={() => { setSport(item); setLeague("all"); }}>{labels[item]}</FilterButton>)}
-      </div>
-      <div className="flex max-w-full flex-nowrap gap-2 overflow-x-auto pb-1" aria-label="Filter by game state">
+      </div></div>
+      <div><p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Game status and league</p><div className="flex max-w-full flex-nowrap gap-2 overflow-x-auto pb-1" aria-label="Filter by game state">
         {(Object.keys(statusLabels) as ScoreFilter[]).map((item) => <FilterButton key={item} active={status === item} onClick={() => setStatus(item)}>{statusLabels[item]}</FilterButton>)}
         {leagueOptions.map((item) => <FilterButton key={item} active={league === item} onClick={() => { setLeague(item); setTableLeagueId(data?.matches.find((match) => match.league === item)?.leagueId); }}>{item}</FilterButton>)}
         {league !== "all" && <button onClick={() => setTableLeagueId(selectedLeague?.leagueId)} disabled={!selectedLeague?.leagueId || tableQuery.isFetching} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"><CalendarClock className="h-3.5 w-3.5" />{tableQuery.isFetching ? "Loading table" : "View league table"}</button>}
-      </div>
+      </div></div>
     </div>
     {tableLeagueId && <LeagueTable name={league} rows={tableQuery.data?.rows ?? []} loading={tableQuery.isLoading} error={tableQuery.error} /> }
 
     {isLoading && <div className="grid gap-3 md:grid-cols-2">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-44" />)}</div>}
     {error && <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Live scores are unavailable</AlertTitle><AlertDescription>{error.message} <button className="ml-1 underline" onClick={() => refetch()}>Try again</button></AlertDescription></Alert>}
     {!isLoading && !error && matches.length === 0 && <div className="rounded-xl border border-dashed p-10 text-center"><CalendarClock className="mx-auto h-7 w-7 text-muted-foreground" /><h2 className="mt-3 font-semibold">No {status === "all" ? "games" : status + " games"} right now</h2><p className="mt-1 text-sm text-muted-foreground">Choose another sport or status to see available events.</p></div>}
-    <div className="grid gap-3 md:grid-cols-2">{matches.map((match) => <article key={match.id} className="min-w-0 rounded-xl border bg-card p-4 shadow-sm">
+    <div className="grid gap-4 md:grid-cols-2">{matches.map((match) => <article key={match.id} className="min-w-0 rounded-2xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
       <div className="flex items-start justify-between gap-3 text-xs text-muted-foreground"><span className="min-w-0 truncate font-semibold uppercase tracking-wide text-foreground">{labels[match.sport]} · {match.league}</span><StatusBadge status={match.status} label={match.statusLabel} clock={match.clock} /></div>
       <div className="mt-4 space-y-3"><Competitor name={match.home.name} logo={match.home.logo} score={match.home.score} /><Competitor name={match.away?.name ?? "TBD"} logo={match.away?.logo} score={match.away?.score} /></div>
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t pt-3 text-xs text-muted-foreground"><span className="flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{formatStartTime(match.startTime)}</span>{match.venue && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{match.venue}</span>}</div>
@@ -72,7 +72,7 @@ function LeagueTable({ name, rows, loading, error }: { name: string; rows: Array
 }
 
 function FilterButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
-  return <button onClick={onClick} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${active ? "border-transparent bg-gradient-to-r from-blue-600 to-green-600 text-white" : "bg-background hover:bg-muted"}`}>{children}</button>;
+  return <button onClick={onClick} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${active ? "border-transparent bg-gradient-to-r from-blue-600 to-green-600 text-white shadow-sm shadow-blue-500/20" : "bg-background hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50/60 dark:hover:bg-blue-950/30"}`}>{children}</button>;
 }
 function Competitor({ name, logo, score }: { name: string; logo?: string; score?: string | number }) { return <div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-2"><TeamLogo name={name} logo={logo} /><span className="truncate font-medium">{name}</span></div><span className="text-xl font-bold tabular-nums">{score ?? "–"}</span></div>; }
 function StatusBadge({ status, label, clock }: { status: ScoreFilter; label: string; clock?: string }) { return <span className={status === "live" ? "inline-flex items-center gap-1 rounded bg-red-500/10 px-2 py-1 font-bold text-red-600" : "rounded bg-muted px-2 py-1 font-medium"}>{status === "live" && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />}{clock ? `${label} ${clock}` : label}</span>; }
