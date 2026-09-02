@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import type { LeagueStanding, LiveScore, LiveScoresResponse, ScoreStatus, Sport, TeamSearchResult } from "@shared/live-scores";
 
 export type ScoreFilter = ScoreStatus | "all";
@@ -29,16 +29,24 @@ async function getLiveScores(sport: Sport | "all", status: ScoreFilter, league?:
   return response.json() as Promise<LiveScoresResponse>;
 }
 
+async function fetchTeamSearch(name: string) {
+  const response = await fetch(`/api/team-search?name=${encodeURIComponent(name.trim())}`);
+  if (!response.ok) throw new Error("Team search is temporarily unavailable.");
+  return response.json() as Promise<{ teams: TeamSearchResult[] }>;
+}
+
 export function useTeamSearch(name: string) {
   return useQuery({
     queryKey: ["team-search", name.trim().toLowerCase()],
-    queryFn: async () => {
-      const response = await fetch(`/api/team-search?name=${encodeURIComponent(name.trim())}`);
-      if (!response.ok) throw new Error("Team search is temporarily unavailable.");
-      return response.json() as Promise<{ teams: TeamSearchResult[] }>;
-    },
+    queryFn: () => fetchTeamSearch(name),
     enabled: name.trim().length >= 2,
     staleTime: 300_000,
+  });
+}
+
+export function usePopularTeamLogos(names: string[]) {
+  return useQueries({
+    queries: names.map((name) => ({ queryKey: ["team-search", name.toLowerCase()], queryFn: () => fetchTeamSearch(name), staleTime: 300_000 })),
   });
 }
 
