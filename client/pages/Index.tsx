@@ -1,4 +1,5 @@
 import LiveScoresTicker from "@/components/LiveScoresTicker";
+import { Radio } from "lucide-react";
 import ScheduleTable from "@/components/ScheduleTable";
 import FixturesGrid from "@/components/FixturesGrid";
 import TVFrame from "@/components/TVFrame";
@@ -32,8 +33,9 @@ export default function Index() {
             </a>
             <a
               href="/live"
-              className="rounded-md border px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+              className="inline-flex items-center gap-2 rounded-md border px-5 py-2.5 text-sm font-semibold hover:bg-muted"
             >
+              <Radio className="h-4 w-4 text-red-600" aria-hidden="true" />
               Live scores
             </a>
           </div>
