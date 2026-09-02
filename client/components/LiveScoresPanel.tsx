@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { AlertCircle, CalendarClock, MapPin, Radio, RefreshCw } from "lucide-react";
 import { sports, type Sport } from "@shared/live-scores";
-import { useLiveScores, type ScoreFilter } from "@/lib/live-scores";
+import { useLeagueTable, useLiveScores, type ScoreFilter } from "@/lib/live-scores";
 import TeamLogo from "@/components/TeamLogo";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,9 @@ export default function LiveScoresPanel() {
   const { data, error, isLoading, isFetching, refetch } = useLiveScores(sport, status);
   const leagues = useMemo(() => [...new Set(data?.matches.map((match) => match.league) ?? [])], [data]);
   const [league, setLeague] = useState("all");
+  const [tableLeagueId, setTableLeagueId] = useState<string>();
+  const selectedLeague = data?.matches.find((match) => match.league === league);
+  const tableQuery = useLeagueTable(tableLeagueId);
   const matches = useMemo(() => data?.matches.filter((match) => league === "all" || match.league === league) ?? [], [data, league]);
 
   return <section className="space-y-5" aria-labelledby="live-scores-title">
@@ -43,9 +46,11 @@ export default function LiveScoresPanel() {
       </div>
       <div className="flex flex-wrap gap-2" aria-label="Filter by game state">
         {(Object.keys(statusLabels) as ScoreFilter[]).map((item) => <FilterButton key={item} active={status === item} onClick={() => setStatus(item)}>{statusLabels[item]}</FilterButton>)}
-        {leagues.map((item) => <FilterButton key={item} active={league === item} onClick={() => setLeague(item)}>{item}</FilterButton>)}
+        {leagues.map((item) => <FilterButton key={item} active={league === item} onClick={() => { setLeague(item); setTableLeagueId(data?.matches.find((match) => match.league === item)?.leagueId); }}>{item}</FilterButton>)}
+        {league !== "all" && <button onClick={() => setTableLeagueId(selectedLeague?.leagueId)} disabled={!selectedLeague?.leagueId || tableQuery.isFetching} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"><CalendarClock className="h-3.5 w-3.5" />{tableQuery.isFetching ? "Loading table" : "View league table"}</button>}
       </div>
     </div>
+    {tableLeagueId && <LeagueTable name={league} rows={tableQuery.data?.rows ?? []} loading={tableQuery.isLoading} error={tableQuery.error} /> }
 
     {isLoading && <div className="grid gap-3 md:grid-cols-2">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-44" />)}</div>}
     {error && <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Live scores are unavailable</AlertTitle><AlertDescription>{error.message} <button className="ml-1 underline" onClick={() => refetch()}>Try again</button></AlertDescription></Alert>}
@@ -56,6 +61,10 @@ export default function LiveScoresPanel() {
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t pt-3 text-xs text-muted-foreground"><span className="flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{formatStartTime(match.startTime)}</span>{match.venue && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{match.venue}</span>}</div>
     </article>)}</div>
   </section>;
+}
+
+function LeagueTable({ name, rows, loading, error }: { name: string; rows: Array<{ rank: number; team: string; logo?: string; played: number; points: number; goalDifference?: number }>; loading: boolean; error: Error | null }) {
+  return <div className="overflow-hidden rounded-xl border bg-card shadow-sm"><div className="flex items-center justify-between border-b px-4 py-3"><h2 className="font-semibold">{name} table</h2><span className="text-xs text-muted-foreground">Current season</span></div>{loading ? <div className="p-5 text-sm text-muted-foreground">Loading standings…</div> : error ? <div className="p-5 text-sm text-destructive">{error.message}</div> : rows.length === 0 ? <div className="p-5 text-sm text-muted-foreground">Standings are not available for this competition.</div> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground"><tr><th className="px-4 py-3">#</th><th className="px-4 py-3">Team</th><th className="px-4 py-3">P</th><th className="px-4 py-3">GD</th><th className="px-4 py-3">Pts</th></tr></thead><tbody className="divide-y">{rows.map((row) => <tr key={`${row.rank}-${row.team}`}><td className="px-4 py-3 font-semibold">{row.rank}</td><td className="flex items-center gap-2 px-4 py-3 font-medium"><TeamLogo name={row.team} logo={row.logo} size={24} />{row.team}</td><td className="px-4 py-3">{row.played}</td><td className="px-4 py-3">{row.goalDifference ?? "–"}</td><td className="px-4 py-3 font-bold">{row.points}</td></tr>)}</tbody></table></div>}</div>;
 }
 
 function FilterButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {

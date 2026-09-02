@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import { sports, type LiveScore, type ScoreStatus, type Sport } from "../../shared/live-scores";
+import { sports, type LeagueStanding, type LiveScore, type ScoreStatus, type Sport } from "../../shared/live-scores";
 
 const API_KEY = process.env.APISPORTS_API_KEY ?? "";
 const HIGHLIGHTLY_KEY = process.env.HIGHLIGHTLY_API_KEY ?? "";
@@ -95,6 +95,7 @@ function normalizeHighlightly(raw: unknown): LiveScore | null {
     id: `soccer:${String(item.id ?? `${home.name}-${away.name}-${item.date}`)}`,
     sport: "soccer",
     league: String(league.name ?? country.name ?? "Football"),
+    leagueId: String(league.id ?? item.leagueId ?? "") || undefined,
     venue: String(((item.venue ?? {}) as Record<string, unknown>).name ?? "") || undefined,
     startTime: String(item.date ?? new Date().toISOString()),
     status: isLive(statusLabel) ? "live" : isCompleted(statusLabel) ? "completed" : "upcoming",
@@ -140,6 +141,33 @@ async function fetchSport(sport: Sport, status: ScoreStatus | "all") {
   cache.set(cacheKey, { value: filtered, expiresAt: Date.now() + (status === "live" ? 15_000 : 120_000) });
   return filtered;
 }
+
+export const handleLeagueTable: RequestHandler = async (req, res) => {
+  if (!HIGHLIGHTLY_KEY) return res.status(503).json({ error: "League tables are not configured yet." });
+  const leagueId = typeof req.query.leagueId === "string" ? req.query.leagueId : "";
+  const season = typeof req.query.season === "string" ? req.query.season : String(new Date().getUTCFullYear());
+  if (!leagueId) return res.status(400).json({ error: "A league is required." });
+  const url = new URL("standings", "https://soccer.highlightly.net/");
+  url.searchParams.set("leagueId", leagueId);
+  url.searchParams.set("season", season);
+  try {
+    const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error(`Highlightly standings returned ${response.status}`);
+    const body = (await response.json()) as { data?: unknown[]; groups?: unknown[] };
+    const groups = body.groups ?? body.data ?? [];
+    const rows: LeagueStanding[] = groups.flatMap((group) => {
+      const standings = ((group as Record<string, unknown>)?.standings ?? group) as unknown;
+      return Array.isArray(standings) ? standings : [];
+    }).map((row, index) => {
+      const value = row as Record<string, unknown>;
+      const team = (value.team ?? {}) as Record<string, unknown>;
+      return { rank: Number(value.rank ?? index + 1), team: String(team.name ?? value.name ?? "Team"), logo: typeof team.logo === "string" ? team.logo : undefined, played: Number(value.played ?? value.games ?? value.matches ?? 0), points: Number(value.points ?? 0), goalDifference: value.goalDifference == null ? undefined : Number(value.goalDifference) };
+    });
+    res.json({ leagueId, season, rows });
+  } catch (error) {
+    res.status(502).json({ error: error instanceof Error ? error.message : "League table is temporarily unavailable." });
+  }
+};
 
 export const handleLiveScores: RequestHandler = async (req, res) => {
   if (!API_KEY && !HIGHLIGHTLY_KEY) return res.status(503).json({ error: "Live scores are not configured yet." });

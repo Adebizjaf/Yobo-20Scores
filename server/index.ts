@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleApiSportsStatus, proxyApiSports } from "./routes/apisports";
-import { handleLiveScores } from "./routes/live-scores";
+import { handleLeagueTable, handleLiveScores } from "./routes/live-scores";
 
 export function createServer() {
   const app = express();
@@ -23,6 +23,7 @@ export function createServer() {
 
   // API-SPORTS integration
   app.get("/api/live-scores", handleLiveScores);
+  app.get("/api/league-table", handleLeagueTable);
   app.get("/api/apisports/status", handleApiSportsStatus);
   app.use("/api/apisports", proxyApiSports);
 

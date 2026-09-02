@@ -22,6 +22,7 @@ export interface LiveScore {
   id: string;
   sport: Sport;
   league: string;
+  leagueId?: string;
   venue?: string;
   startTime: string;
   status: ScoreStatus;
@@ -29,6 +30,15 @@ export interface LiveScore {
   clock?: string;
   home: { name: string; score?: string | number; logo?: string };
   away?: { name: string; score?: string | number; logo?: string };
+}
+
+export interface LeagueStanding {
+  rank: number;
+  team: string;
+  logo?: string;
+  played: number;
+  points: number;
+  goalDifference?: number;
 }
 
 export interface LiveScoresResponse {

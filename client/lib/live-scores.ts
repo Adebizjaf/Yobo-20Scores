@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { LiveScore, LiveScoresResponse, ScoreStatus, Sport } from "@shared/live-scores";
+import type { LeagueStanding, LiveScore, LiveScoresResponse, ScoreStatus, Sport } from "@shared/live-scores";
 
 export type ScoreFilter = ScoreStatus | "all";
 
@@ -26,6 +26,19 @@ async function getLiveScores(sport: Sport | "all", status: ScoreFilter): Promise
     throw new Error(providerError || "Live scores are temporarily unavailable.");
   }
   return response.json() as Promise<LiveScoresResponse>;
+}
+
+export function useLeagueTable(leagueId?: string) {
+  return useQuery({
+    queryKey: ["league-table", leagueId],
+    queryFn: async () => {
+      const response = await fetch(`/api/league-table?leagueId=${encodeURIComponent(leagueId!)}`);
+      if (!response.ok) throw new Error("League table is temporarily unavailable.");
+      return response.json() as Promise<{ rows: LeagueStanding[] }>;
+    },
+    enabled: Boolean(leagueId),
+    staleTime: 300_000,
+  });
 }
 
 export function useLiveScores(sport: Sport | "all", status: ScoreFilter = "all") {
