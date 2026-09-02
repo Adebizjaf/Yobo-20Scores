@@ -27,8 +27,8 @@ export interface LiveScore {
   status: ScoreStatus;
   statusLabel: string;
   clock?: string;
-  home: { name: string; score?: string | number };
-  away?: { name: string; score?: string | number };
+  home: { name: string; score?: string | number; logo?: string };
+  away?: { name: string; score?: string | number; logo?: string };
 }
 
 export interface LiveScoresResponse {

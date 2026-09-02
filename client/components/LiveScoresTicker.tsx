@@ -12,7 +12,7 @@ export default function LiveScoresTicker() {
 
   const cards = items.map((match) => <div key={match.id} className="flex shrink-0 items-center gap-3 rounded-full border bg-background px-4 py-2 shadow-sm">
     <span className="text-lg">⚽</span><span className="text-xs font-semibold uppercase text-foreground/70">{match.league}</span>
-    <span className="flex items-center gap-2 text-sm font-medium"><TeamLogo name={match.home.name} /><span>{match.home.name} <b className="text-blue-600">{match.home.score ?? "–"}</b></span><span className="text-foreground/60">:</span><span><b className="text-green-600">{match.away?.score ?? "–"}</b> {match.away?.name ?? "TBD"}</span><TeamLogo name={match.away?.name ?? "TBD"} /></span>
+    <span className="flex items-center gap-2 text-sm font-medium"><TeamLogo name={match.home.name} logo={match.home.logo} /><span>{match.home.name} <b className="text-blue-600">{match.home.score ?? "–"}</b></span><span className="text-foreground/60">:</span><span><b className="text-green-600">{match.away?.score ?? "–"}</b> {match.away?.name ?? "TBD"}</span><TeamLogo name={match.away?.name ?? "TBD"} logo={match.away?.logo} /></span>
     <span className="inline-flex items-center gap-1 rounded bg-red-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />{data.cached ? "Demo live" : match.clock ? `Live ${match.clock}` : "Live"}</span>
   </div>);
 

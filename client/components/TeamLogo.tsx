@@ -8,11 +8,13 @@ function hashHue(input: string) {
 
 export default function TeamLogo({
   name,
+  logo,
   size = 28,
   className,
   squared = false,
 }: {
   name: string;
+  logo?: string;
   size?: number;
   className?: string;
   squared?: boolean;
@@ -40,9 +42,7 @@ export default function TeamLogo({
       aria-label={`${name} logo`}
       title={name}
     >
-      <span className="text-[10px] font-extrabold tracking-wide drop-shadow-sm">
-        {initials}
-      </span>
+      {logo ? <img src={logo} alt="" className="h-full w-full object-contain p-1" loading="lazy" /> : <span className="text-[10px] font-extrabold tracking-wide drop-shadow-sm">{initials}</span>}
     </div>
   );
 }

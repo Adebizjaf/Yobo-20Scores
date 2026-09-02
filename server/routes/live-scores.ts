@@ -100,8 +100,8 @@ function normalizeHighlightly(raw: unknown): LiveScore | null {
     status: isLive(statusLabel) ? "live" : isCompleted(statusLabel) ? "completed" : "upcoming",
     statusLabel,
     clock: String(state.clock ?? "") || undefined,
-    home: { name: String(home.name ?? "TBD"), score: homeScore },
-    away: { name: String(away.name ?? "TBD"), score: awayScore },
+    home: { name: String(home.name ?? "TBD"), score: homeScore, logo: typeof home.logo === "string" ? home.logo : undefined },
+    away: { name: String(away.name ?? "TBD"), score: awayScore, logo: typeof away.logo === "string" ? away.logo : undefined },
   };
 }
 
