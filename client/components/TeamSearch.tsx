@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import TeamLogo from "@/components/TeamLogo";
 import { teams, getAcronym, type TeamInfo } from "@/data/teams";
-import { useLiveScores } from "@/lib/live-scores";
+import { useLiveScores, useTeamSearch } from "@/lib/live-scores";
 
 const popularTeams = ["Real Madrid", "Manchester United", "Los Angeles Lakers", "New York Yankees", "Kansas City Chiefs"];
 const popularTeamRecords: TeamInfo[] = popularTeams.map((name) => ({ name, acronym: getAcronym(name) }));
@@ -10,13 +10,15 @@ export default function TeamSearch() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const { data } = useLiveScores("soccer", "all");
+  const { data: searchedData } = useTeamSearch(q);
   const currentTeams = useMemo(() => {
     const liveTeams: TeamInfo[] = (data?.matches ?? []).flatMap((match) => [
       { name: match.home.name, acronym: getAcronym(match.home.name), logo: match.home.logo },
       ...(match.away ? [{ name: match.away.name, acronym: getAcronym(match.away.name), logo: match.away.logo }] : []),
     ]);
-    return Array.from(new Map([...popularTeamRecords, ...teams, ...liveTeams].map((team) => [team.name.toLowerCase(), team])).values());
-  }, [data]);
+    const searchedTeams: TeamInfo[] = (searchedData?.teams ?? []).map((team) => ({ name: team.name, acronym: getAcronym(team.name), logo: team.logo }));
+    return Array.from(new Map([...popularTeamRecords, ...teams, ...liveTeams, ...searchedTeams].map((team) => [team.name.toLowerCase(), team])).values());
+  }, [data, searchedData]);
 
   useEffect(() => {
     const handler = (e: Event) => {

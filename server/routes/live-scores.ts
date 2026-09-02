@@ -142,6 +142,23 @@ async function fetchSport(sport: Sport, status: ScoreStatus | "all") {
   return filtered;
 }
 
+export const handleTeamSearch: RequestHandler = async (req, res) => {
+  if (!HIGHLIGHTLY_KEY) return res.status(503).json({ teams: [] });
+  const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+  if (name.length < 2) return res.json({ teams: [] });
+  const url = new URL("football/teams", `${HIGHLIGHTLY_DOMAIN}/`);
+  url.searchParams.set("name", name);
+  url.searchParams.set("limit", "5");
+  try {
+    const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error(`Highlightly teams returned ${response.status}`);
+    const body = (await response.json()) as { data?: Array<{ name?: string; logo?: string }> };
+    res.json({ teams: (body.data ?? []).filter((team) => team.name).map((team) => ({ name: team.name, logo: team.logo })) });
+  } catch {
+    res.status(502).json({ error: "Team search is temporarily unavailable." });
+  }
+};
+
 export const handleLeagueTable: RequestHandler = async (req, res) => {
   if (!HIGHLIGHTLY_KEY) return res.status(503).json({ error: "League tables are not configured yet." });
   const leagueId = typeof req.query.leagueId === "string" ? req.query.leagueId : "";

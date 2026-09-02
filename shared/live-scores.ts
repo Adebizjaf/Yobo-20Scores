@@ -41,6 +41,11 @@ export interface LeagueStanding {
   goalDifference?: number;
 }
 
+export interface TeamSearchResult {
+  name: string;
+  logo?: string;
+}
+
 export interface LiveScoresResponse {
   matches: LiveScore[];
   fetchedAt: string;
