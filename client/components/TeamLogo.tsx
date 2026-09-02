@@ -34,7 +34,7 @@ export default function TeamLogo({
   return (
     <div
       className={cn(
-        "relative grid place-items-center overflow-hidden text-white shadow-inner ring-1 ring-black/10",
+        "relative grid shrink-0 place-items-center overflow-hidden text-white shadow-inner ring-1 ring-black/10",
         squared ? "rounded-md" : "rounded-full",
         className,
       )}

@@ -33,10 +33,10 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center gap-3">
-        <Link to="/" className="flex items-center gap-2">
+      <div className="container flex h-16 min-w-0 items-center gap-2 px-4 sm:gap-3">
+        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-green-500" />
-          <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+          <span className="truncate text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
             Yobo Scores
           </span>
         </Link>
@@ -47,7 +47,7 @@ export default function SiteHeader() {
             e.preventDefault();
             submitSearch();
           }}
-          className="hidden md:flex relative ml-auto w-full max-w-md items-center"
+          className="relative ml-auto hidden min-w-0 w-full max-w-md items-center md:flex"
           role="search"
         >
           <div className="pointer-events-none absolute left-2 flex h-full items-center text-foreground/50">
@@ -69,7 +69,7 @@ export default function SiteHeader() {
         </form>
 
         {/* Actions */}
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 md:ml-0">
           <button
             onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
             className="rounded-md border p-2 text-foreground/70 hover:bg-muted"
