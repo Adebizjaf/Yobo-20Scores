@@ -35,6 +35,7 @@ export default function LiveScoresPanel() {
       <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
     </div>
 
+    {data?.cached && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100"><strong>Demo mode:</strong> connect an API-SPORTS key to replace these sample scores with live events.</div>}
     <div className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
       <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by sport">
         <FilterButton active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}>All sports</FilterButton>
