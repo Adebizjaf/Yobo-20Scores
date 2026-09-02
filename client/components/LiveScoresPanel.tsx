@@ -1,0 +1,64 @@
+import { useMemo, useState } from "react";
+import { AlertCircle, CalendarClock, MapPin, Radio, RefreshCw } from "lucide-react";
+import { sports, type Sport } from "@shared/live-scores";
+import { useLiveScores, type ScoreFilter } from "@/lib/live-scores";
+import TeamLogo from "@/components/TeamLogo";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const labels: Record<Sport, string> = {
+  soccer: "Soccer", basketball: "Basketball", "american-football": "American football", baseball: "Baseball", hockey: "Hockey", tennis: "Tennis", cricket: "Cricket", rugby: "Rugby", volleyball: "Volleyball", motorsports: "Motorsports", boxing: "Boxing", mma: "MMA", golf: "Golf", athletics: "Athletics",
+};
+const statusLabels: Record<ScoreFilter, string> = { all: "All games", live: "Live", upcoming: "Upcoming", completed: "Completed" };
+
+function formatStartTime(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? "Time TBD" : new Intl.DateTimeFormat(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" }).format(date);
+}
+
+export default function LiveScoresPanel() {
+  const [sport, setSport] = useState<Sport | "all">("soccer");
+  const [status, setStatus] = useState<ScoreFilter>("all");
+  const { data, error, isLoading, isFetching, refetch } = useLiveScores(sport, status);
+  const leagues = useMemo(() => [...new Set(data?.matches.map((match) => match.league) ?? [])], [data]);
+  const [league, setLeague] = useState("all");
+  const matches = useMemo(() => data?.matches.filter((match) => league === "all" || match.league === league) ?? [], [data, league]);
+
+  return <section className="space-y-5" aria-labelledby="live-scores-title">
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-red-600"><Radio className="h-4 w-4" />Live score centre</div>
+        <h1 id="live-scores-title" className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">Scores that stay current</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Updates automatically while this page is open. Live results refresh every 15 seconds.</p>
+      </div>
+      <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
+    </div>
+
+    <div className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
+      <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter by sport">
+        <FilterButton active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}>All sports</FilterButton>
+        {sports.map((item) => <FilterButton key={item} active={sport === item} onClick={() => { setSport(item); setLeague("all"); }}>{labels[item]}</FilterButton>)}
+      </div>
+      <div className="flex flex-wrap gap-2" aria-label="Filter by game state">
+        {(Object.keys(statusLabels) as ScoreFilter[]).map((item) => <FilterButton key={item} active={status === item} onClick={() => setStatus(item)}>{statusLabels[item]}</FilterButton>)}
+        {leagues.map((item) => <FilterButton key={item} active={league === item} onClick={() => setLeague(item)}>{item}</FilterButton>)}
+      </div>
+    </div>
+
+    {isLoading && <div className="grid gap-3 md:grid-cols-2">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-44" />)}</div>}
+    {error && <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Live scores are unavailable</AlertTitle><AlertDescription>{error.message} <button className="ml-1 underline" onClick={() => refetch()}>Try again</button></AlertDescription></Alert>}
+    {!isLoading && !error && matches.length === 0 && <div className="rounded-xl border border-dashed p-10 text-center"><CalendarClock className="mx-auto h-7 w-7 text-muted-foreground" /><h2 className="mt-3 font-semibold">No {status === "all" ? "games" : status + " games"} right now</h2><p className="mt-1 text-sm text-muted-foreground">Choose another sport or status to see available events.</p></div>}
+    <div className="grid gap-3 md:grid-cols-2">{matches.map((match) => <article key={match.id} className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3 text-xs text-muted-foreground"><span className="font-semibold uppercase tracking-wide text-foreground">{labels[match.sport]} · {match.league}</span><StatusBadge status={match.status} label={match.statusLabel} clock={match.clock} /></div>
+      <div className="mt-4 space-y-3"><Competitor name={match.home.name} score={match.home.score} /><Competitor name={match.away?.name ?? "TBD"} score={match.away?.score} /></div>
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t pt-3 text-xs text-muted-foreground"><span className="flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" />{formatStartTime(match.startTime)}</span>{match.venue && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{match.venue}</span>}</div>
+    </article>)}</div>
+  </section>;
+}
+
+function FilterButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+  return <button onClick={onClick} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${active ? "border-transparent bg-gradient-to-r from-blue-600 to-green-600 text-white" : "bg-background hover:bg-muted"}`}>{children}</button>;
+}
+function Competitor({ name, score }: { name: string; score?: string | number }) { return <div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-2"><TeamLogo name={name} /><span className="truncate font-medium">{name}</span></div><span className="text-xl font-bold tabular-nums">{score ?? "–"}</span></div>; }
+function StatusBadge({ status, label, clock }: { status: ScoreFilter; label: string; clock?: string }) { return <span className={status === "live" ? "inline-flex items-center gap-1 rounded bg-red-500/10 px-2 py-1 font-bold text-red-600" : "rounded bg-muted px-2 py-1 font-medium"}>{status === "live" && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />}{clock ? `${label} ${clock}` : label}</span>; }

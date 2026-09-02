@@ -16,6 +16,7 @@ import SiteFooter from "@/components/SiteFooter";
 import Premium from "@/pages/Premium";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
+import LiveScores from "@/pages/LiveScores";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/premium" element={<Premium />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/live" element={<LiveScores />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
