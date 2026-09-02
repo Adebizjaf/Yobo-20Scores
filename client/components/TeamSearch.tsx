@@ -3,6 +3,8 @@ import TeamLogo from "@/components/TeamLogo";
 import { teams, getAcronym, type TeamInfo } from "@/data/teams";
 import { useLiveScores } from "@/lib/live-scores";
 
+const popularTeams = ["Lagos FC", "Kano Kings", "Abuja Stars", "PH Clippers", "Abuja Heat", "PH Sharks", "Accra United"];
+
 export default function TeamSearch() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -30,12 +32,20 @@ export default function TeamSearch() {
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return currentTeams;
-    return currentTeams.filter(
-      (t) =>
-        t.name.toLowerCase().includes(term) ||
-        getAcronym(t.name).toLowerCase().includes(term),
-    );
+    const filtered = term
+      ? currentTeams.filter(
+          (t) =>
+            t.name.toLowerCase().includes(term) ||
+            getAcronym(t.name).toLowerCase().includes(term),
+        )
+      : currentTeams;
+    return [...filtered]
+      .sort((a, b) => {
+        const aRank = popularTeams.indexOf(a.name);
+        const bRank = popularTeams.indexOf(b.name);
+        return (aRank < 0 ? popularTeams.length : aRank) - (bRank < 0 ? popularTeams.length : bRank);
+      })
+      .slice(0, 5);
   }, [q, currentTeams]);
 
   return (
