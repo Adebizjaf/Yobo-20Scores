@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertCircle, CalendarClock, MapPin, Radio, RefreshCw } from "lucide-react";
+import { AlertCircle, Bike, CalendarClock, Circle, CircleDot, Dumbbell, Flag, Goal, MapPin, Medal, Radio, RefreshCw, Timer, Trophy, type LucideIcon } from "lucide-react";
 import { sports, type Sport } from "@shared/live-scores";
 import { useLeagueTable, useLiveScores, type ScoreFilter } from "@/lib/live-scores";
 import TeamLogo from "@/components/TeamLogo";
@@ -11,6 +11,7 @@ const labels: Record<Sport, string> = {
   soccer: "Soccer", basketball: "Basketball", "american-football": "American football", baseball: "Baseball", hockey: "Hockey", tennis: "Tennis", cricket: "Cricket", rugby: "Rugby", volleyball: "Volleyball", motorsports: "Motorsports", boxing: "Boxing", mma: "MMA", golf: "Golf", athletics: "Athletics",
 };
 const statusLabels: Record<ScoreFilter, string> = { all: "All games", live: "Live", upcoming: "Upcoming", completed: "Completed" };
+const sportIcons: Record<Sport, LucideIcon> = { soccer: Goal, basketball: CircleDot, "american-football": Trophy, baseball: CircleDot, hockey: Goal, tennis: CircleDot, cricket: Circle, rugby: Medal, volleyball: Circle, motorsports: Bike, boxing: Dumbbell, mma: Medal, golf: Flag, athletics: Timer };
 
 function formatStartTime(value: string) {
   const date = new Date(value);
@@ -45,8 +46,8 @@ export default function LiveScoresPanel() {
     {data?.cached && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100"><strong>Demo mode:</strong> live provider access is unavailable, so these sample scores are shown until live events can be loaded.</div>}
     <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm backdrop-blur sm:p-5">
       <div><p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Sport</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" aria-label="Filter by sport">
-        <FilterButton className="w-full justify-center" active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}>All sports</FilterButton>
-        {sports.map((item) => <FilterButton className="w-full justify-center" key={item} active={sport === item} onClick={() => { setSport(item); setLeague("all"); }}>{labels[item]}</FilterButton>)}
+        <FilterButton className="w-full justify-center" active={sport === "all"} onClick={() => { setSport("all"); setLeague("all"); }}><Trophy className="h-4 w-4" aria-hidden="true" />All sports</FilterButton>
+        {sports.map((item) => { const Icon = sportIcons[item]; return <FilterButton className="w-full justify-center" key={item} active={sport === item} onClick={() => { setSport(item); setLeague("all"); }}><Icon className="h-4 w-4" aria-hidden="true" />{labels[item]}</FilterButton>; })}
       </div></div>
       <div><p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Game status and league</p><div className="flex max-w-full flex-nowrap gap-2 overflow-x-auto pb-1" aria-label="Filter by game state">
         {(Object.keys(statusLabels) as ScoreFilter[]).map((item) => <FilterButton key={item} active={status === item} onClick={() => setStatus(item)}>{statusLabels[item]}</FilterButton>)}
