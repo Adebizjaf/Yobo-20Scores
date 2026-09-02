@@ -25,6 +25,12 @@ export default function Index() {
               Get Premium
             </a>
             <a
+              href="/signup"
+              className="rounded-md border px-5 py-2.5 text-sm font-semibold hover:bg-muted"
+            >
+              Create account
+            </a>
+            <a
               href="/live"
               className="rounded-md border px-5 py-2.5 text-sm font-semibold hover:bg-muted"
             >
