@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Search as SearchIcon, Sun, Moon } from "lucide-react";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -27,12 +28,7 @@ export default function SiteHeader() {
   function submitSearch() {
     const q = query.trim();
     if (!q) return;
-    const ev = new CustomEvent("yobo:search", { detail: q });
-    window.dispatchEvent(ev);
-    location.hash = "#search";
-    document
-      .getElementById("search")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    navigate(`/?search=${encodeURIComponent(q)}#search`);
   }
 
   return (

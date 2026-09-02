@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import TeamLogo from "@/components/TeamLogo";
 import { teams, getAcronym, type TeamInfo } from "@/data/teams";
+import { useLocation } from "react-router-dom";
 import { useLiveScores, useTeamSearch } from "@/lib/live-scores";
 
 const popularTeams = ["Real Madrid", "Manchester United", "Los Angeles Lakers", "New York Yankees", "Kansas City Chiefs"];
@@ -9,6 +10,7 @@ const popularTeamRecords: TeamInfo[] = popularTeams.map((name) => ({ name, acron
 export default function TeamSearch() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const location = useLocation();
   const { data } = useLiveScores("soccer", "all");
   const { data: searchedData } = useTeamSearch(q);
   const currentTeams = useMemo(() => {
@@ -19,6 +21,15 @@ export default function TeamSearch() {
     const searchedTeams: TeamInfo[] = (searchedData?.teams ?? []).map((team) => ({ name: team.name, acronym: getAcronym(team.name), logo: team.logo }));
     return Array.from(new Map([...popularTeamRecords, ...teams, ...liveTeams, ...searchedTeams].map((team) => [team.name.toLowerCase(), team])).values());
   }, [data, searchedData]);
+
+  useEffect(() => {
+    const search = new URLSearchParams(location.search).get("search");
+    if (search) {
+      setQ(search);
+      setSubmitted(true);
+      requestAnimationFrame(() => document.getElementById("search")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const handler = (e: Event) => {
