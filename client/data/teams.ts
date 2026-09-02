@@ -9,6 +9,7 @@ export function getAcronym(name: string) {
 export interface TeamInfo {
   name: string;
   acronym: string;
+  logo?: string;
 }
 
 const extras = [

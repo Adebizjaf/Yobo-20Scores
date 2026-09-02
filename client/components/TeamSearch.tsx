@@ -1,10 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import TeamLogo from "@/components/TeamLogo";
-import { teams, getAcronym } from "@/data/teams";
+import { teams, getAcronym, type TeamInfo } from "@/data/teams";
+import { useLiveScores } from "@/lib/live-scores";
 
 export default function TeamSearch() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const { data } = useLiveScores("soccer", "all");
+  const currentTeams = useMemo(() => {
+    const liveTeams: TeamInfo[] = (data?.matches ?? []).flatMap((match) => [
+      { name: match.home.name, acronym: getAcronym(match.home.name), logo: match.home.logo },
+      ...(match.away ? [{ name: match.away.name, acronym: getAcronym(match.away.name), logo: match.away.logo }] : []),
+    ]);
+    return Array.from(new Map([...teams, ...liveTeams].map((team) => [team.name.toLowerCase(), team])).values());
+  }, [data]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -21,13 +30,13 @@ export default function TeamSearch() {
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return teams;
-    return teams.filter(
+    if (!term) return currentTeams;
+    return currentTeams.filter(
       (t) =>
         t.name.toLowerCase().includes(term) ||
         getAcronym(t.name).toLowerCase().includes(term),
     );
-  }, [q]);
+  }, [q, currentTeams]);
 
   return (
     <div id="search" className="space-y-4">
@@ -65,7 +74,7 @@ export default function TeamSearch() {
               className="flex items-center justify-between rounded-xl border bg-background p-3 shadow-sm"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <TeamLogo name={t.name} size={32} />
+                <TeamLogo name={t.name} logo={t.logo} size={32} />
                 <div className="min-w-0">
                   <div className="truncate font-semibold">{t.name}</div>
                   <div className="text-xs text-foreground/60">{t.acronym}</div>
