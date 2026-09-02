@@ -36,7 +36,10 @@ export default function LiveScoresPanel() {
         <h1 id="live-scores-title" className="mt-1 text-2xl font-extrabold tracking-tight sm:text-4xl">Scores that stay current</h1>
         <p className="mt-2 text-sm text-muted-foreground">Updates automatically while this page is open. Live results refresh every 15 seconds.</p>
       </div>
-      <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
+      <div className="flex flex-wrap gap-2 sm:shrink-0">
+        <Button variant="outline" size="sm" onClick={() => { const firstLeague = data?.matches.find((match) => match.leagueId); setLeague(firstLeague?.league ?? "English Premier League"); setTableLeagueId(firstLeague?.leagueId); }}><CalendarClock />League tables</Button>
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={isFetching ? "animate-spin" : ""} />Refresh</Button>
+      </div>
     </div>
 
     {data?.cached && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100"><strong>Demo mode:</strong> live provider access is unavailable, so these sample scores are shown until live events can be loaded.</div>}
