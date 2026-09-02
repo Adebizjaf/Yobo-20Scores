@@ -13,6 +13,7 @@ const marchFixtures: ScheduleFixture[] = [
   { id: "march-baseball", sport: "Baseball", home: "New York Yankees", away: "Los Angeles Dodgers", date: "Mar 21, 2026", time: "18:05", league: "MLB Spring Training" },
   { id: "march-hockey", sport: "Hockey", home: "Toronto Maple Leafs", away: "Boston Bruins", date: "Mar 23, 2026", time: "19:00", league: "NHL" },
   { id: "march-soccer", sport: "Soccer", home: "Real Madrid", away: "Manchester City", date: "Mar 25, 2026", time: "20:00", league: "UEFA Champions League" },
+  { id: "march-premier-league", sport: "Soccer", home: "Arsenal", away: "Liverpool", date: "Mar 29, 2026", time: "16:30", league: "English Premier League" },
 ];
 
 function formatProviderDate(value: string) {
@@ -29,7 +30,7 @@ export default function ScheduleTable() {
   const { data: liveData } = useLiveScores("soccer", "all");
   const schedule = useMemo<ScheduleFixture[]>(() => {
     const providerSoccer = (liveData?.matches ?? []).slice(0, 1).map((match) => ({ id: match.id, sport: "Soccer" as const, home: match.home.name, away: match.away?.name ?? "TBD", date: formatProviderDate(match.startTime), time: formatProviderTime(match.startTime), league: match.league, homeLogo: match.home.logo, awayLogo: match.away?.logo }));
-    return providerSoccer.length ? [...providerSoccer, ...marchFixtures.filter((fixture) => fixture.sport !== "Soccer")] : marchFixtures;
+    return providerSoccer.length ? [...providerSoccer, ...marchFixtures.filter((fixture) => fixture.sport !== "Soccer" || fixture.league === "English Premier League")] : marchFixtures;
   }, [liveData]);
   const data = useMemo(() => schedule.filter((fixture) => filter === "All" || fixture.sport === filter), [filter, schedule]);
 
