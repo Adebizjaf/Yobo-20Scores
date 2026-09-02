@@ -16,8 +16,9 @@ function fallbackScores(sport: Sport | "all", status: ScoreFilter): LiveScoresRe
   return { matches, fetchedAt: new Date().toISOString(), cached: true, availableSports: sport === "all" ? ["soccer", "basketball", "tennis", "cricket", "rugby"] : [sport] };
 }
 
-async function getLiveScores(sport: Sport | "all", status: ScoreFilter): Promise<LiveScoresResponse> {
+async function getLiveScores(sport: Sport | "all", status: ScoreFilter, league?: string): Promise<LiveScoresResponse> {
   const params = new URLSearchParams({ sport, status });
+  if (league && league !== "all") params.set("league", league);
   const response = await fetch(`/api/live-scores?${params}`);
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -54,10 +55,10 @@ export function useLeagueTable(leagueId?: string) {
   });
 }
 
-export function useLiveScores(sport: Sport | "all", status: ScoreFilter = "all") {
+export function useLiveScores(sport: Sport | "all", status: ScoreFilter = "all", league?: string) {
   return useQuery({
-    queryKey: ["live-scores", sport, status],
-    queryFn: () => getLiveScores(sport, status),
+    queryKey: ["live-scores", sport, status, league],
+    queryFn: () => getLiveScores(sport, status, league),
     staleTime: status === "live" ? 10_000 : 60_000,
     refetchInterval: status === "live" || status === "all" ? 15_000 : 120_000,
     refetchIntervalInBackground: false,

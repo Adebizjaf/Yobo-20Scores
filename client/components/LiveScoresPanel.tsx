@@ -20,10 +20,10 @@ function formatStartTime(value: string) {
 export default function LiveScoresPanel() {
   const [sport, setSport] = useState<Sport | "all">("soccer");
   const [status, setStatus] = useState<ScoreFilter>("all");
-  const { data, error, isLoading, isFetching, refetch } = useLiveScores(sport, status);
+  const [league, setLeague] = useState("all");
+  const { data, error, isLoading, isFetching, refetch } = useLiveScores(sport, status, league === "English Premier League" ? league : undefined);
   const leagues = useMemo(() => [...new Set(data?.matches.map((match) => match.league) ?? [])], [data]);
   const leagueOptions = useMemo(() => [...new Set(["English Premier League", ...leagues])], [leagues]);
-  const [league, setLeague] = useState("all");
   const [tableLeagueId, setTableLeagueId] = useState<string>();
   const selectedLeague = data?.matches.find((match) => match.league === league);
   const tableQuery = useLeagueTable(tableLeagueId);

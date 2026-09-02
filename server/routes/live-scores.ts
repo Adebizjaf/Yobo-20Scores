@@ -94,7 +94,7 @@ function normalizeHighlightly(raw: unknown): LiveScore | null {
   return {
     id: `soccer:${String(item.id ?? `${home.name}-${away.name}-${item.date}`)}`,
     sport: "soccer",
-    league: String(league.name ?? country.name ?? "Football"),
+    league: String(league.id === 33973 ? "English Premier League" : league.name ?? country.name ?? "Football"),
     leagueId: String(league.id ?? item.leagueId ?? "") || undefined,
     venue: String(((item.venue ?? {}) as Record<string, unknown>).name ?? "") || undefined,
     startTime: String(item.date ?? new Date().toISOString()),
@@ -106,12 +106,13 @@ function normalizeHighlightly(raw: unknown): LiveScore | null {
   };
 }
 
-async function fetchHighlightly(status: ScoreStatus | "all") {
-  const cacheKey = `highlightly:${status}`;
+async function fetchHighlightly(status: ScoreStatus | "all", leagueId?: string) {
+  const cacheKey = `highlightly:${status}:${leagueId ?? "all"}`;
   const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
   const url = new URL("football/matches", `${HIGHLIGHTLY_DOMAIN}/`);
-  url.searchParams.set("date", new Date().toISOString().slice(0, 10));
+  if (leagueId) url.searchParams.set("leagueId", leagueId);
+  else url.searchParams.set("date", new Date().toISOString().slice(0, 10));
   const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error(`Highlightly upstream returned ${response.status}`);
   const body = (await response.json()) as { data?: unknown[] };
@@ -121,8 +122,8 @@ async function fetchHighlightly(status: ScoreStatus | "all") {
   return filtered;
 }
 
-async function fetchSport(sport: Sport, status: ScoreStatus | "all") {
-  if (sport === "soccer" && HIGHLIGHTLY_KEY) return fetchHighlightly(status);
+async function fetchSport(sport: Sport, status: ScoreStatus | "all", leagueId?: string) {
+  if (sport === "soccer" && HIGHLIGHTLY_KEY) return fetchHighlightly(status, leagueId);
   const base = baseFor(sport);
   if (!base) return [];
   const cacheKey = `${sport}:${status}`;
@@ -196,7 +197,8 @@ export const handleLiveScores: RequestHandler = async (req, res) => {
 
   const selectedSports = requestedSport === "all" ? sports.filter((sport) => baseFor(sport)) : [requestedSport as Sport];
   try {
-    const groups = await Promise.all(selectedSports.map((sport) => fetchSport(sport, requestedStatus as ScoreStatus | "all")));
+    const leagueId = requestedSport === "soccer" && requestedStatus && req.query.league === "English Premier League" ? "33973" : undefined;
+    const groups = await Promise.all(selectedSports.map((sport) => fetchSport(sport, requestedStatus as ScoreStatus | "all", leagueId)));
     let matches = groups.flat();
     if (league) matches = matches.filter((match) => match.league === league);
     res.json({ matches, fetchedAt: new Date().toISOString(), cached: false, availableSports: selectedSports });
