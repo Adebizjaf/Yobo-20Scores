@@ -31,7 +31,7 @@ function baseFor(sport: Sport) {
 
 function isLive(value: unknown) {
   const status = String(value ?? "").trim().toLowerCase();
-  return ["live", "in play", "in progress", "1h", "2h", "ht", "halftime", "q1", "q2", "q3", "q4", "ot", "set 1", "set 2", "set 3"].includes(status) || /^(first|second|third|fourth) half$/.test(status);
+  return ["live", "in play", "in progress", "1h", "2h", "ht", "halftime", "q1", "q2", "q3", "q4", "1q", "2q", "3q", "4q", "ot", "overtime", "set 1", "set 2", "set 3", "inning", "top", "bottom"].includes(status) || /^(first|second|third|fourth) half$/.test(status) || /^(top|bottom) \d+(st|nd|rd|th)? inning$/.test(status);
 }
 
 function isCompleted(value: unknown) {
@@ -80,7 +80,7 @@ function normalizeGame(sport: Sport, raw: unknown): LiveScore | null {
   };
 }
 
-function normalizeHighlightly(raw: unknown, sport: "soccer" | "hockey"): LiveScore | null {
+function normalizeHighlightly(raw: unknown, sport: "soccer" | "hockey" | "basketball" | "baseball" | "american-football"): LiveScore | null {
   if (!raw || typeof raw !== "object") return null;
   const item = raw as Record<string, unknown>;
   const state = (item.state ?? {}) as Record<string, unknown>;
@@ -88,15 +88,17 @@ function normalizeHighlightly(raw: unknown, sport: "soccer" | "hockey"): LiveSco
   const home = (item.homeTeam ?? {}) as Record<string, unknown>;
   const away = (item.awayTeam ?? {}) as Record<string, unknown>;
   const country = (item.country ?? {}) as Record<string, unknown>;
-  const league = (item.league ?? {}) as Record<string, unknown>;
-  const statusLabel = String(state.description ?? "Scheduled");
+  const league = item.league;
+  const leagueName = typeof league === "string" ? league : String((league as Record<string, unknown> | undefined)?.name ?? country.name ?? (sport === "hockey" ? "Hockey" : sport === "basketball" ? "Basketball" : sport === "baseball" ? "Baseball" : sport === "american-football" ? "American football" : "Football"));
+  const leagueId = typeof league === "object" && league !== null ? (league as Record<string, unknown>).id : item.leagueId;
+  const statusLabel = String(state.description ?? state.report ?? "Scheduled");
   const currentScore = String(score.current ?? "");
   const [homeScore, awayScore] = currentScore.split(/\s*[-:]\s*/).map((value) => value || undefined);
   return {
     id: `${sport}:${String(item.id ?? `${home.name}-${away.name}-${item.date}`)}`,
     sport,
-    league: String(sport === "soccer" && league.id === 33973 ? "English Premier League" : league.name ?? country.name ?? (sport === "hockey" ? "Hockey" : "Football")),
-    leagueId: String(league.id ?? item.leagueId ?? "") || undefined,
+    league: String(sport === "soccer" && typeof league !== "string" && (league as Record<string, unknown> | undefined)?.id === 33973 ? "English Premier League" : leagueName),
+    leagueId: String(leagueId ?? "") || undefined,
     venue: String(((item.venue ?? {}) as Record<string, unknown>).name ?? "") || undefined,
     startTime: String(item.date ?? new Date().toISOString()),
     status: isLive(statusLabel) ? "live" : isCompleted(statusLabel) ? "completed" : "upcoming",
@@ -107,14 +109,15 @@ function normalizeHighlightly(raw: unknown, sport: "soccer" | "hockey"): LiveSco
   };
 }
 
-async function fetchHighlightly(sport: "soccer" | "hockey", status: ScoreStatus | "all", leagueId?: string) {
+async function fetchHighlightly(sport: "soccer" | "hockey" | "basketball" | "baseball" | "american-football", status: ScoreStatus | "all", leagueId?: string) {
   const cacheKey = `highlightly:${sport}:${status}:${leagueId ?? "all"}`;
   const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
-  const url = new URL(`${sport === "soccer" ? "football" : "hockey"}/matches`, `${HIGHLIGHTLY_DOMAIN}/`);
+  const endpoint = sport === "soccer" ? "football" : sport;
+  const url = new URL(`${endpoint}/matches`, `${HIGHLIGHTLY_DOMAIN}/`);
   if (leagueId) url.searchParams.set("leagueId", leagueId);
   else url.searchParams.set("date", new Date().toISOString().slice(0, 10));
-  const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
+  const response = await fetch(url, { headers: { Accept: "application/json", "x-rapidapi-host": "sport-highlights-api.p.rapidapi.com", "x-rapidapi-key": HIGHLIGHTLY_KEY }, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error(`Highlightly upstream returned ${response.status}`);
   const body = (await response.json()) as { data?: unknown[] };
   const matches = (body.data ?? []).map((game) => normalizeHighlightly(game, sport)).filter((match): match is LiveScore => Boolean(match));
@@ -124,7 +127,7 @@ async function fetchHighlightly(sport: "soccer" | "hockey", status: ScoreStatus 
 }
 
 async function fetchSport(sport: Sport, status: ScoreStatus | "all", leagueId?: string) {
-  if ((sport === "soccer" || sport === "hockey") && HIGHLIGHTLY_KEY) return fetchHighlightly(sport, status, leagueId);
+  if ((sport === "soccer" || sport === "hockey" || sport === "basketball" || sport === "baseball" || sport === "american-football") && HIGHLIGHTLY_KEY) return fetchHighlightly(sport, status, leagueId);
   const base = baseFor(sport);
   if (!base) return [];
   const cacheKey = `${sport}:${status}`;
@@ -201,7 +204,7 @@ export const handleLiveScores: RequestHandler = async (req, res) => {
   if (requestedSport !== "all" && !sports.includes(requestedSport as Sport)) return res.status(400).json({ error: "Unsupported sport" });
   if (!["all", "live", "upcoming", "completed"].includes(requestedStatus)) return res.status(400).json({ error: "Unsupported status" });
 
-  const selectedSports = requestedSport === "all" ? sports.filter((sport) => baseFor(sport) || (HIGHLIGHTLY_KEY && (sport === "soccer" || sport === "hockey"))) : [requestedSport as Sport];
+  const selectedSports = requestedSport === "all" ? sports.filter((sport) => baseFor(sport) || (HIGHLIGHTLY_KEY && (sport === "soccer" || sport === "hockey" || sport === "basketball" || sport === "baseball" || sport === "american-football"))) : [requestedSport as Sport];
   try {
     const leagueId = requestedSport === "soccer" && requestedStatus && req.query.league === "English Premier League" ? "33973" : undefined;
     const groups = await Promise.all(selectedSports.map((sport) => fetchSport(sport, requestedStatus as ScoreStatus | "all", leagueId)));
