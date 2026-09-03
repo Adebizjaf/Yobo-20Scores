@@ -57,7 +57,7 @@ export default function SiteHeader() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search teams (e.g., Lagos, LF)"
-            className="w-full rounded-lg border bg-background/60 px-8 py-2 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:bg-background"
+            className="min-w-0 flex-1 rounded-lg border bg-background/60 px-8 py-2 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:bg-background"
             aria-label="Search teams"
           />
           <button
@@ -125,7 +125,7 @@ export default function SiteHeader() {
                 submitSearch();
                 setOpen(false);
               }}
-              className="relative flex items-center"
+              className="relative flex min-w-0 items-center"
               role="search"
             >
               <div className="pointer-events-none absolute left-2 flex h-full items-center text-foreground/50">
@@ -135,7 +135,7 @@ export default function SiteHeader() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search teams (e.g., Lagos, LF)"
-                className="w-full rounded-lg border bg-background/60 px-8 py-2 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:bg-background"
+                className="min-w-0 flex-1 rounded-lg border bg-background/60 px-8 py-2 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:bg-background"
                 aria-label="Search teams"
               />
               <button

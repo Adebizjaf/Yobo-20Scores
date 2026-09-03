@@ -77,7 +77,7 @@ export default function TeamSearch() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search teams by name or acronym (e.g., LF, Lagos)"
-          className="flex-1 rounded-md border bg-background px-3 py-2 outline-none focus:border-blue-500"
+          className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 outline-none focus:border-blue-500"
           aria-label="Search teams"
         />
         <button
@@ -99,7 +99,7 @@ export default function TeamSearch() {
               key={t.name}
               className="flex items-center justify-between rounded-xl border bg-background p-3 shadow-sm"
             >
-              <div className="flex min-w-0 items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <TeamLogo name={t.name} logo={t.logo} size={32} />
                 <div className="min-w-0">
                   <div className="truncate font-semibold">{t.name}</div>

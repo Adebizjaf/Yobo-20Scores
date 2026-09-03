@@ -102,7 +102,7 @@ export default function Index() {
             No ads. Dedicated TV screen for live matches. Faster updates.
             Experience sports like never before.
           </p>
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
             <a
               href="/premium"
               className="rounded-md bg-gradient-to-r from-blue-600 to-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:opacity-90"
